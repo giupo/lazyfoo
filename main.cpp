@@ -30,10 +30,20 @@ int main( int argc, char* args[] ){
   }
 
 
-  SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
-  SDL_UpdateWindowSurface(gWindow);
-  SDL_Delay(5000);
-  
+  bool quit = false;
+  SDL_Event e;
+
+  while(!quit) {
+    while(SDL_PollEvent(&e) != 0) {
+      if(e.type == SDL_QUIT) {
+	quit = true;
+      }
+    }
+    
+    SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
+    SDL_UpdateWindowSurface(gWindow);
+  } 
+
   close();
   return 0;
 }
@@ -51,6 +61,7 @@ bool init() {
 			     SCREEN_WIDTH,
 			     SCREEN_HEIGHT,
 			     SDL_WINDOW_SHOWN);
+
   if( gWindow == NULL ) {
     std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
     return false;
@@ -63,7 +74,7 @@ bool init() {
 }
 
 bool loadMedia() {
-  std::string image_path("media/hello_world.bmp");
+  std::string image_path("media/x.bmp");
   gHelloWorld = SDL_LoadBMP(image_path.c_str());  
   if(gHelloWorld == NULL) {
     std::cerr << "Unable to load image " << image_path.c_str() << ", ";
