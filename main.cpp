@@ -126,12 +126,24 @@ void close() {
 SDL_Surface* loadSurface(std::string path) {
   //Load image at specified path
   SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
-  if( loadedSurface == NULL ) {
+  if (loadedSurface == NULL) {
     std:: cerr <<  "Unable to load image " << path.c_str();
     std:: cerr << " SDL Error: "<< SDL_GetError() << std::endl;
+    return NULL;
   }
+
+  SDL_Surface* optimizedSurface = SDL_ConvertSurface(loadedSurface,
+						     gScreenSurface->format,
+						     NULL);
+
+  if (optimizedSurface == NULL) {
+    std::cerr << "Unable to optimize image " << path.c_str();
+    std::cerr << " SDL Error: " << SDL_GetError();
+  }
+
+  SDL_FreeSurface(loadedSurface);
   
-  return loadedSurface;
+  return optimizedSurface;
 }
 
 bool loadMedia() {
