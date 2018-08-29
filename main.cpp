@@ -3,6 +3,7 @@
 
 //Using SDL and standard IO
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <string>
 
@@ -18,7 +19,7 @@ SDL_Surface* loadSurface(std::string path);
 
 SDL_Window* gWindow = NULL;
 SDL_Surface* gScreenSurface = NULL;
-SDL_Surface* gStretchedSurface = NULL;
+SDL_Surface* gPNG_Surface = NULL;
 
 int main( int argc, char* args[] ){
   if(!init()) {
@@ -42,13 +43,7 @@ int main( int argc, char* args[] ){
       }
     }
 
-    SDL_Rect stretchedRect;
-    stretchedRect.x = 0;
-    stretchedRect.y = 0;
-    stretchedRect.w = SCREEN_WIDTH;
-    stretchedRect.h = SCREEN_HEIGHT;
-
-    SDL_BlitScaled(gStretchedSurface, NULL, gScreenSurface, &stretchedRect);
+    SDL_BlitSurface(gPNG_Surface, NULL, gScreenSurface, NULL);
     SDL_UpdateWindowSurface(gWindow);
   } 
 
@@ -61,7 +56,15 @@ bool init() {
   if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
     std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
     return false;
-  } 
+  }
+
+  //Initialize PNG loading
+  int imgFlags = IMG_INIT_PNG;
+  if( !( IMG_Init( imgFlags ) & imgFlags ) ) {
+    std::cerr << "SDL_image could not initialize!";
+    std::cerr << " SDL_image Error: %s\n" << IMG_GetError() << std::endl;
+    return false;
+  }
   //Create window
   gWindow = SDL_CreateWindow("SDL Tutorial",
 			     SDL_WINDOWPOS_UNDEFINED,
@@ -82,8 +85,8 @@ bool init() {
 }
 
 void close() {
-  if(gStretchedSurface == NULL) {
-    SDL_FreeSurface(gStretchedSurface);
+  if(gPNG_Surface == NULL) {
+    SDL_FreeSurface(gPNG_Surface);
   }
   
   if(gWindow != NULL) {
@@ -96,10 +99,10 @@ void close() {
 
 SDL_Surface* loadSurface(std::string path) {
   //Load image at specified path
-  SDL_Surface* loadedSurface = SDL_LoadBMP( path.c_str() );
+  SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
   if (loadedSurface == NULL) {
     std:: cerr <<  "Unable to load image " << path.c_str();
-    std:: cerr << " SDL Error: "<< SDL_GetError() << std::endl;
+    std:: cerr << " SDL Error: "<< IMG_GetError() << std::endl;
     return NULL;
   }
 
@@ -118,9 +121,9 @@ SDL_Surface* loadSurface(std::string path) {
 }
 
 bool loadMedia() {
-  gStretchedSurface = loadSurface("media/stretch.bmp");
-  if(gStretchedSurface == NULL) {
-    std::cerr << "Failed to load stretching image!" << std::endl;
+  gPNG_Surface = loadSurface("media/loaded.png");
+  if(gPNG_Surface == NULL) {
+    std::cerr << "Failed to load PNG image!" << std::endl;
     return false;
   }
 
