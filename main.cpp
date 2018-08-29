@@ -42,11 +42,10 @@ int main( int argc, char* args[] ){
 	quit = true;
       }
     }
-
     SDL_BlitSurface(gPNG_Surface, NULL, gScreenSurface, NULL);
     SDL_UpdateWindowSurface(gWindow);
-  } 
-
+  }
+  
   close();
   return 0;
 }
@@ -108,7 +107,7 @@ SDL_Surface* loadSurface(std::string path) {
 
   SDL_Surface* optimizedSurface = SDL_ConvertSurface(loadedSurface,
 						     gScreenSurface->format,
-						     NULL);
+						     0);
 
   if (optimizedSurface == NULL) {
     std::cerr << "Unable to optimize image " << path.c_str();
