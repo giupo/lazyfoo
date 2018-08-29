@@ -18,19 +18,7 @@ SDL_Surface* loadSurface(std::string path);
 
 SDL_Window* gWindow = NULL;
 SDL_Surface* gScreenSurface = NULL;
-
-enum KeyPressSurfaces
-  {
-   KEY_PRESS_SURFACE_DEFAULT,
-   KEY_PRESS_SURFACE_UP,
-   KEY_PRESS_SURFACE_DOWN,
-   KEY_PRESS_SURFACE_LEFT,
-   KEY_PRESS_SURFACE_RIGHT,
-   KEY_PRESS_SURFACE_TOTAL
-  };
-
-SDL_Surface* gKeyPressSurfaces[KEY_PRESS_SURFACE_TOTAL];
-SDL_Surface* gCurrentSurface = NULL;
+SDL_Surface* gStretchedSurface = NULL;
 
 int main( int argc, char* args[] ){
   if(!init()) {
@@ -47,34 +35,20 @@ int main( int argc, char* args[] ){
   bool quit = false;
   SDL_Event e;
 
-  gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
-
   while(!quit) {
     while(SDL_PollEvent(&e) != 0) {
       if(e.type == SDL_QUIT) {
 	quit = true;
-      } else if (e.type == SDL_KEYDOWN) {
-	switch( e.key.keysym.sym ) {
-	case SDLK_UP:
-	  gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_UP];
-	  break;
-	case SDLK_DOWN:
-	  gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_DOWN];
-	  break;
-	case SDLK_LEFT:
-	  gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_LEFT];
-	  break;
-	case SDLK_RIGHT:
-	  gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_RIGHT];
-	  break;
-	default:
-	  gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];
-	  break;
-	}
       }
     }
-    
-    SDL_BlitSurface(gCurrentSurface, NULL, gScreenSurface, NULL);
+
+    SDL_Rect stretchedRect;
+    stretchedRect.x = 0;
+    stretchedRect.y = 0;
+    stretchedRect.w = SCREEN_WIDTH;
+    stretchedRect.h = SCREEN_HEIGHT;
+
+    SDL_BlitScaled(gStretchedSurface, NULL, gScreenSurface, &stretchedRect);
     SDL_UpdateWindowSurface(gWindow);
   } 
 
@@ -108,11 +82,8 @@ bool init() {
 }
 
 void close() {
-  for(int i=0; i < KEY_PRESS_SURFACE_TOTAL; i++) {
-    if(gKeyPressSurfaces[i] != NULL) {
-      SDL_FreeSurface(gKeyPressSurfaces[i]);
-      gKeyPressSurfaces[i] = NULL;
-    }
+  if(gStretchedSurface == NULL) {
+    SDL_FreeSurface(gStretchedSurface);
   }
   
   if(gWindow != NULL) {
@@ -147,40 +118,11 @@ SDL_Surface* loadSurface(std::string path) {
 }
 
 bool loadMedia() {
-  //Load default surface
-  gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] = loadSurface( "media/press.bmp" );
-  if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] == NULL ) {
-    std::cerr << "Failed to load default image!" << std::endl;
+  gStretchedSurface = loadSurface("media/stretch.bmp");
+  if(gStretchedSurface == NULL) {
+    std::cerr << "Failed to load stretching image!" << std::endl;
     return false;
   }
-  
-  //Load up surface
-  gKeyPressSurfaces[ KEY_PRESS_SURFACE_UP ] = loadSurface( "media/up.bmp" );
-  if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_UP ] == NULL ) {
-    std::cerr << "Failed to load up image!" << std::endl;
-    return false;
-  }
-  
-  //Load down surface
-  gKeyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ] = loadSurface( "media/down.bmp" );
-  if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ] == NULL ) {
-    std::cerr << "Failed to load down image!" << std::endl;
-    return false;
-  }
-  
-  //Load left surface
-  gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ] = loadSurface( "media/left.bmp" );
-  if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ] == NULL ) {
-    std::cerr << "Failed to load left image!" << std::endl;
-    return false;
-  }
-  
-  //Load right surface
-  gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ] = loadSurface( "media/right.bmp" );
-  if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ] == NULL ) {
-    std::cerr << "Failed to load right image!" << std::endl;
-    return false;
-  }
-  
+
   return true;
 }
