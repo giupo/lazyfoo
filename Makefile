@@ -14,6 +14,16 @@ LINKER_FLAGS = -lSDL2
 #OBJ_NAME specifies the name of our exectuable
 OBJ_NAME = 01_hello_SDL
 
+#DIST specifies where to put the compiled code
+DIST = dist
+
 #This is the target that compiles our executable
-all : $(OBJS)
-	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OBJ_NAME)
+all : $(OBJS) init
+	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(DIST)/$(OBJ_NAME)
+
+init:
+	mkdir -p $(DIST)
+
+clean:
+	rm -rf *~
+	rm -rf dist/*
