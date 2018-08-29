@@ -1,5 +1,5 @@
 #OBJS specifies which files to compile as part of the project
-OBJS = 01_hello_SDL.cpp
+OBJS = main.cpp
 
 #CC specifies which compiler we're using
 CC = g++
@@ -12,7 +12,7 @@ COMPILER_FLAGS = -w
 LINKER_FLAGS = -lSDL2
 
 #OBJ_NAME specifies the name of our exectuable
-OBJ_NAME = 01_hello_SDL
+OBJ_NAME = main
 
 #DIST specifies where to put the compiled code
 DIST = dist
