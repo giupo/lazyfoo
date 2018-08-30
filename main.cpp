@@ -14,12 +14,8 @@ bool init();
 bool loadMedia();
 void close();
 
-SDL_Texture* loadTexture(std::string path);
-
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
-SDL_Texture* gTexture = NULL;
-
 
 int main( int argc, char* args[] ){
   if(!init()) {
@@ -41,11 +37,24 @@ int main( int argc, char* args[] ){
 	quit = true;
       }
     }
- 
-    SDL_RenderClear( gRenderer );
-    //Render texture to screen
-    SDL_RenderCopy( gRenderer, gTexture, NULL, NULL );
-    //Update screen
+
+    SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+    SDL_RenderClear( gRenderer ); 
+    //Render red filled quad
+    SDL_Rect fillRect = { SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
+    SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
+    SDL_RenderFillRect( gRenderer, &fillRect );
+
+    //Draw blue horizontal line
+    SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0xFF, 0xFF );        
+    SDL_RenderDrawLine( gRenderer, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2 );
+
+    //Draw vertical line of yellow dots
+    SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0x00, 0xFF );
+    for( int i = 0; i < SCREEN_HEIGHT; i += 4 ) {
+      SDL_RenderDrawPoint( gRenderer, SCREEN_WIDTH / 2, i );
+    }
+
     SDL_RenderPresent( gRenderer );
   }
   
@@ -91,32 +100,7 @@ bool init() {
 }
 
 
-SDL_Texture* loadTexture(std::string path) {
-  SDL_Texture* newTexture = NULL;
-  SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-
-  if(loadedSurface == NULL) {
-    std::cerr << "Unable to load image: " << path.c_str();
-    std::cerr << ", SDL Error: " << SDL_GetError() << std::endl;
-    return NULL;
-  }
-
-  newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
-  if (newTexture == NULL) {
-    std::cerr << "Unable to create texture from " << path.c_str();
-    std::cerr << ", SDL Error: " << SDL_GetError() << std::endl;
-  }
-
-  SDL_FreeSurface(loadedSurface);
-  return newTexture;
-}
-
 void close() {
-  if(gTexture != NULL) {
-    SDL_DestroyTexture(gTexture);
-    gTexture = NULL;
-  }
-
   if(gRenderer != NULL) {
     SDL_DestroyRenderer(gRenderer);
     gRenderer = NULL;
@@ -139,12 +123,5 @@ void close() {
  */
 
 bool loadMedia() {
-  gTexture = loadTexture("media/texture.png");
-  if(gTexture == NULL) {
-    std::cerr << "Failed to load PNG image!" << std::endl;
-    std::cerr << "SDL Error: " << SDL_GetError() << std::endl;
-    return false;
-  }
-
   return true;
 }
