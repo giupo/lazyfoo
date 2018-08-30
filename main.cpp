@@ -1,13 +1,12 @@
 /*This source code copyrighted by Lazy Foo' Productions (2004-2015)
   and may not be redistributed without written permission.*/
 
-//Using SDL and standard IO
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <string>
 
-//Screen dimension constants
+//Scrxoeen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
@@ -15,11 +14,12 @@ bool init();
 bool loadMedia();
 void close();
 
-SDL_Surface* loadSurface(std::string path);
+SDL_Texture* loadTexture(std::string path);
 
 SDL_Window* gWindow = NULL;
-SDL_Surface* gScreenSurface = NULL;
-SDL_Surface* gPNG_Surface = NULL;
+SDL_Renderer* gRenderer = NULL;
+SDL_Texture* gTexture = NULL;
+
 
 int main( int argc, char* args[] ){
   if(!init()) {
@@ -31,8 +31,7 @@ int main( int argc, char* args[] ){
     close();
     return 2;
   }
-
-
+  
   bool quit = false;
   SDL_Event e;
 
@@ -42,8 +41,12 @@ int main( int argc, char* args[] ){
 	quit = true;
       }
     }
-    SDL_BlitSurface(gPNG_Surface, NULL, gScreenSurface, NULL);
-    SDL_UpdateWindowSurface(gWindow);
+ 
+    SDL_RenderClear( gRenderer );
+    //Render texture to screen
+    SDL_RenderCopy( gRenderer, gTexture, NULL, NULL );
+    //Update screen
+    SDL_RenderPresent( gRenderer );
   }
   
   close();
@@ -75,54 +78,71 @@ bool init() {
   if( gWindow == NULL ) {
     std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
     return false;
-  } else {
-    //Get window surface
-    gScreenSurface = SDL_GetWindowSurface( gWindow );
+  }
+
+  gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+  if(gRenderer == NULL) {
+    std::cerr << "Renderer could not be created!";
+    std::cerr << " SDL Error: " << SDL_GetError() << std::endl;
+    return false;
   }
   
   return true;
 }
 
+
+SDL_Texture* loadTexture(std::string path) {
+  SDL_Texture* newTexture = NULL;
+  SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+
+  if(loadedSurface == NULL) {
+    std::cerr << "Unable to load image: " << path.c_str();
+    std::cerr << ", SDL Error: " << SDL_GetError() << std::endl;
+    return NULL;
+  }
+
+  newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+  if (newTexture == NULL) {
+    std::cerr << "Unable to create texture from " << path.c_str();
+    std::cerr << ", SDL Error: " << SDL_GetError() << std::endl;
+  }
+
+  SDL_FreeSurface(loadedSurface);
+  return newTexture;
+}
+
 void close() {
-  if(gPNG_Surface == NULL) {
-    SDL_FreeSurface(gPNG_Surface);
+  if(gTexture != NULL) {
+    SDL_DestroyTexture(gTexture);
+    gTexture = NULL;
+  }
+
+  if(gRenderer != NULL) {
+    SDL_DestroyRenderer(gRenderer);
+    gRenderer = NULL;
   }
   
   if(gWindow != NULL) {
     SDL_DestroyWindow(gWindow);
     gWindow = NULL;
   }
-
+  
+  IMG_Quit();
   SDL_Quit();
 }
 
-SDL_Surface* loadSurface(std::string path) {
-  //Load image at specified path
-  SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-  if (loadedSurface == NULL) {
-    std:: cerr <<  "Unable to load image " << path.c_str();
-    std:: cerr << " SDL Error: "<< IMG_GetError() << std::endl;
-    return NULL;
-  }
 
-  SDL_Surface* optimizedSurface = SDL_ConvertSurface(loadedSurface,
-						     gScreenSurface->format,
-						     0);
-
-  if (optimizedSurface == NULL) {
-    std::cerr << "Unable to optimize image " << path.c_str();
-    std::cerr << " SDL Error: " << SDL_GetError();
-  }
-
-  SDL_FreeSurface(loadedSurface);
-  
-  return optimizedSurface;
-}
+/**
+ * Carica i media
+ * \brief Loads media
+ * \sa loadTexture
+ */
 
 bool loadMedia() {
-  gPNG_Surface = loadSurface("media/loaded.png");
-  if(gPNG_Surface == NULL) {
+  gTexture = loadTexture("media/texture.png");
+  if(gTexture == NULL) {
     std::cerr << "Failed to load PNG image!" << std::endl;
+    std::cerr << "SDL Error: " << SDL_GetError() << std::endl;
     return false;
   }
 
