@@ -44,7 +44,39 @@ int main( int argc, char* args[] ){
  
     SDL_RenderClear( gRenderer );
     //Render texture to screen
+    //Top left corner viewport
+    SDL_Rect topLeftViewport;
+    topLeftViewport.x = 0;
+    topLeftViewport.y = 0;
+    topLeftViewport.w = SCREEN_WIDTH / 2;
+    topLeftViewport.h = SCREEN_HEIGHT / 2;
+    SDL_RenderSetViewport( gRenderer, &topLeftViewport );
+                
+    //Render texture to screen
     SDL_RenderCopy( gRenderer, gTexture, NULL, NULL );
+
+    //Top right viewport
+    SDL_Rect topRightViewport;
+    topRightViewport.x = SCREEN_WIDTH / 2;
+    topRightViewport.y = 0;
+    topRightViewport.w = SCREEN_WIDTH / 2;
+    topRightViewport.h = SCREEN_HEIGHT / 2;
+    SDL_RenderSetViewport( gRenderer, &topRightViewport );
+                
+    //Render texture to screen
+    SDL_RenderCopy( gRenderer, gTexture, NULL, NULL );
+
+    //Bottom viewport
+    SDL_Rect bottomViewport;
+    bottomViewport.x = 0;
+    bottomViewport.y = SCREEN_HEIGHT / 2;
+    bottomViewport.w = SCREEN_WIDTH;
+    bottomViewport.h = SCREEN_HEIGHT / 2;
+    SDL_RenderSetViewport( gRenderer, &bottomViewport );
+                
+    //Render texture to screen
+    SDL_RenderCopy( gRenderer, gTexture, NULL, NULL );
+
     //Update screen
     SDL_RenderPresent( gRenderer );
   }
@@ -139,7 +171,7 @@ void close() {
  */
 
 bool loadMedia() {
-  gTexture = loadTexture("media/texture.png");
+  gTexture = loadTexture("media/viewport.png");
   if(gTexture == NULL) {
     std::cerr << "Failed to load PNG image!" << std::endl;
     std::cerr << "SDL Error: " << SDL_GetError() << std::endl;
