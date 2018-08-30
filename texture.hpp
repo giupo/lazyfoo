@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <string>
 
+extern SDL_Renderer* gRenderer;
+
 class LTexture
 {
 public:

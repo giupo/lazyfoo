@@ -36,7 +36,8 @@ int main( int argc, char* args[] ){
   
   bool quit = false;
   SDL_Event e;
-
+  int current_x = 60;
+  int velocity_x = 5;
   while(!quit) {
     while(SDL_PollEvent(&e) != 0) {
       if(e.type == SDL_QUIT) {
@@ -48,9 +49,16 @@ int main( int argc, char* args[] ){
     SDL_RenderClear( gRenderer );
 
     gBackgroundTexture.render(0, 0);
-    gFooTexture.render(240, 190);
+
+
+    gFooTexture.render(current_x, 210);
     
     SDL_RenderPresent( gRenderer );
+    current_x += velocity_x;
+    if(current_x > 540 || current_x < 60) {
+      velocity_x = -velocity_x;
+    }
+    SDL_Delay(25);
   }
   
   close();
@@ -127,13 +135,13 @@ bool loadMedia() {
   bool success = true;
 
   //Load Foo' texture
-  if( !gFooTexture.loadFromFile( "10_color_keying/foo.png" ) ) {
+  if( !gFooTexture.loadFromFile( "media/foo.png" ) ) {
     std::cerr << "Failed to load Foo' texture image!" << std::endl;
     success = false;
   }
     
   //Load background texture
-  if( !gBackgroundTexture.loadFromFile( "10_color_keying/background.png" ) ) {
+  if( !gBackgroundTexture.loadFromFile( "media/background.png" ) ) {
     std::cerr << "Failed to load background texture image!" << std::endl;
     success = false;
   }

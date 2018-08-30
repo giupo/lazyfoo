@@ -18,18 +18,18 @@ LTexture::~LTexture() {
 
 bool LTexture::loadFromFile(std::string path) {
   SDL_Texture* newTexture = NULL;
-  SDK_Surface* loadedSurface = IMG_Load(path.c_str());
+  SDL_Surface* loadedSurface = IMG_Load(path.c_str());
   if( NULL == loadedSurface ) {
     std::cerr << "Unable to load image " << path.c_str();
     std::cerr << ", SDL Error: " << SDL_GetError() << std::endl;
     return false;
   }
   SDL_SetColorKey( loadedSurface, SDL_TRUE,
-		   SDL_MapRGP( loadedSurface->format, 0, 0xFF, 0xFF));
+		   SDL_MapRGB( loadedSurface->format, 0, 0xFF, 0xFF));
   newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
 
   if (NULL == newTexture) {
-    std::cerr << "Unable to create texture from " << path.c_ptr();
+    std::cerr << "Unable to create texture from " << path.c_str();
     std::cerr << ", SDL Error: " << SDL_GetError() << std::endl;
     SDL_FreeSurface(loadedSurface);
     return false;
